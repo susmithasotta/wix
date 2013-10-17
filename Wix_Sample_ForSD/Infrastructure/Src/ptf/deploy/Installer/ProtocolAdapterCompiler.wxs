@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef DevEnvDir?>
+
+<?define SRCDIR=$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\pac?>
+<?define SYMB_DLL_DIR=$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll?>
+<?define SYMB_EXE_DIR=$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\exe?>
+<?define PAC_SRC_ROOT=$(env.INETROOT)\Infrastructure\src\pac?>
+<?define BLDVER=$(env._BLDVERMAJOR).$(env._BLDVERMINOR).$(env._BLDNUMMAJOR).$(env._BLDNUMMINOR)?>
+
+<?else?>
+
+<?ifdef Debug?>
+<?define BUILDTYPE=debug?>
+<?else?>
+<?define BUILDTYPE=release?>
+<?endif?>
+
+<?if $(var.Platform) = "x86"?>
+<?define BUILDTARGET=i386?>
+<?else?>
+<?define BUILDTARGET=amd64?>
+<?endif?>
+
+<?define SRCDIR=$(var.ProjectDir)..\..\..\drop\$(var.BUILDTYPE)\$(var.BUILDTARGET)\Infrastructure\pac?>
+<?define SYMB_DLL_DIR=$(var.ProjectDir)..\..\..\SYMBOLS\$(var.BUILDTYPE)\$(var.BUILDTARGET)\dll?>
+<?define SYMB_EXE_DIR=$(var.ProjectDir)..\..\..\SYMBOLS\$(var.BUILDTYPE)\$(var.BUILDTARGET)\exe?>
+<?define PAC_SRC_ROOT=$(var.ProjectDir)..\..\..\Infrastructure\src\pac?>
+<?define BLDVER=1.0.1.0?>
+
+<?endif?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Fragment Id="PAC">
+
+    <!-- Program Files -->
+    <DirectoryRef Id="ProgramFilesFolder">
+      <Directory Id="PAC_ROOT_DIR" Name="Protocol Adapter Compiler">
+        <Directory Id="PAC_Bin" Name="bin">
+          <Directory Id="PAC_XmlSchema" Name="tdxmlschema">
+            <Directory Id="PAC_XmlSchema_Shared" Name="shared" />
+          </Directory>
+          <Directory Id="PAC_ConfigExample" Name="example" />
+        </Directory>
+      </Directory>
+    </DirectoryRef>
+    
+    
+    <!-- PAC Bin -->
+    <DirectoryRef Id="PAC_Bin">
+
+      <!-- Registry information -->
+      <Component Id="PAC_REG" Guid="*" Feature="PAC_All">
+        <RegistryKey Id="PAC_REG_INSTALLDIR"
+                     Action="create"
+                     Root="HKLM"
+                     Key="SOFTWARE\Microsoft\ProtocolAdapterCompiler">
+          <RegistryValue Value="[PAC_Bin]" Type="string" Name="InstallDir"/>
+        </RegistryKey>
+
+        <Environment Id="PAC_ENV_PATH"
+                     Name="PATH"
+                     Action="set"
+                     System="yes"
+                     Part="last"
+                     Value="[PAC_Bin]" />
+      </Component>
+
+
+      <!-- Tool -->
+      <Component Id="pac.exe" Guid="*" Feature="PAC_All">
+        <File Id="pac.exe"
+              Source="$(var.SRCDIR)\pac.exe" />
+      </Component>
+      <Component Id="pac.pdb" Guid="*" Feature="PAC_All">
+        <File Id="pac.pdb"
+              Source="$(var.SYMB_EXE_DIR)\pac.pdb" />
+      </Component>
+
+      
+      <!-- Additional files -->
+      <Component Id="default.pacconfig" Guid="*" Feature="PAC_All">
+        <File Id="default.pacconfig"
+              Source="$(var.PAC_SRC_ROOT)\Config\default.pacconfig" />
+      </Component>
+      <Component Id="pacconfig.xsd" Guid="*" Feature="PAC_All">
+        <File Id="pacconfig.xsd"
+              Source="$(var.PAC_SRC_ROOT)\Config\pacconfig.xsd" />
+      </Component>
+    </DirectoryRef>
+
+    
+    <!-- Config example for users -->
+    <DirectoryRef Id="PAC_ConfigExample">
+      <Component Id="example.pacconfig" Guid="*" Feature="PAC_All">
+        <File Id="example.pacconfig"
+              Source="$(var.PAC_SRC_ROOT)\Config\example\example.pacconfig" />
+      </Component>
+    </DirectoryRef>
+
+
+    <Feature Id="PAC_All"
+             Title="Protocol Adapter Compiler"
+             Description="Protocol Adapter Compiler"
+             Level="1" 
+             Display="hidden" />
+    
+  </Fragment>
+
+</Wix>

@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef DevEnvDir?>
+
+<?define BLDVER=$(env._BLDVERMAJOR).$(env._BLDVERMINOR).$(env._BLDNUMMAJOR).$(env._BLDNUMMINOR)?>
+<?else?>
+
+<?if $(var.Platform) = "x86"?>
+<?define BUILDTARGET=i386?>
+<?else?>
+<?define BUILDTARGET=amd64?>
+<?endif?>
+
+<?ifdef Debug?>
+<?define BUILDTYPE=debug?>
+<?else?>
+<?define BUILDTYPE=release?>
+<?endif?>
+
+<?define BLDVER=1.0.1.0?>
+
+<?endif?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+
+  <Module Id='ProtocolTestFrameworkSharedModule'
+          Language='1033'
+          Version='$(env._BLDVERMAJOR).$(env._BLDVERMINOR).$(env._BLDNUMMAJOR).$(env._BLDNUMMINOR)'>
+
+    <!-- Set InstallerVersion to 300 or greater to merge VC90Redist -->
+    <Package Id="45931C2D-3B86-40FD-A308-9A890F6E670F"
+             InstallScope="perMachine"
+             InstallPrivileges="elevated"
+             Description="Protocol Test Framework"
+             Comments="Protocol Test Framework v$(var.BLDVER)"
+             Manufacturer="Microsoft Corporation"
+             InstallerVersion="300" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <!-- Protocol Test Framework Directory Structure -->
+        <Directory Id="ProtocolTestFramework" Name="Protocol Test Framework">
+          <Directory Id="PTF_Bin" Name="bin">
+
+            <!-- Registry infromation -->
+            <Component Id="PTF_REG" Guid="*">
+              <RegistryKey Id="PTF_REG_INSTALLDIR"
+                           Action="create"
+                           Root="HKLM"
+                           Key="SOFTWARE\Microsoft\ProtocolTestFramework">
+                <RegistryValue Value="[PTF_Bin]" Type="string" Name="InstallDir"/>
+              </RegistryKey>
+
+              <RegistryKey Id="PTF_REG_FOR_VS_REFERENCE"
+                           Action="create"
+                           Root="HKLM"
+                           Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\ProtocolTestFramework">
+                <RegistryValue Value="[PTF_Bin_VS9]" Type="string"/>
+              </RegistryKey>
+
+              <Environment Id="PTF_ENV_PATH"
+                           Name="PATH"
+                           Action="set"
+                           System="yes"
+                           Part="last"
+                           Value="[PTF_Bin]" />
+            </Component>
+
+            <!-- Registry information for VS2010 reference (.Net 4.0) -->
+            <Component Id="PTF_REG_DOTNET_FX4" Guid="*">
+              <RegistryKey Id="PTF_REG_FOR_VS_REFERENCE_NET_40"
+                           Action="create"
+                           Root="HKLM"
+                           Key="SOFTWARE\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\ProtocolTestFramework">
+                <RegistryValue Value="[PTF_Bin_VS10]" Type="string"/>
+              </RegistryKey>
+            </Component>
+
+            <Component Id="ASN1RT.dll" Guid="*">
+              <File Id="ASN1RT.dll"
+                     Source="$(env.INETROOT)\build\external\tools\ASNAPI\asn1rt.dll" />
+            </Component>
+
+            <!-- ReportingTool -->
+            <Component Id="ReportingTool.exe" Guid="*">
+              <File Id="ReportingTool.exe"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\reportingtool\ReportingTool.exe" />
+            </Component>
+            <Component Id="ReportingTool.pdb" Guid="*">
+              <File Id="ReportingTool.pdb"
+                    Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\exe\ReportingTool.pdb" />
+            </Component>
+
+            <!-- Config -->
+            <Component Id="site.ptfconfig" Guid="*">
+              <File Id="site.ptfconfig"
+                    Source="$(env.INETROOT)\Infrastructure\src\ptf\testtools\config\site.ptfconfig" />
+            </Component>
+            <Component Id="TestConfig.xsd" Guid="*">
+              <File Id="TestConfig.xsd"
+                    Source="$(env.INETROOT)\Infrastructure\src\ptf\testtools\config\TestConfig.xsd" />
+            </Component>
+            
+            <Directory Id="PTF_Bin_VS9" Name="vs9">
+              <!-- Microsoft.Protocols.TestTools -->
+              <Component Id="Microsoft.Protocols.TestTools.dll_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.dll_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.pdb_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.pdb_VS9"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.vs9.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.xml_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.xml_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\xmldocs\Microsoft.Protocols.TestTools.xml" />
+              </Component>
+
+              <!-- Microsoft.Protocols.TestTools.Extension -->
+              <Component Id="Microsoft.Protocols.TestTools.Extension.dll_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Extension.dll_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.Extension.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Extension.pdb_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Extension.pdb_VS9"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.Extension.vs9.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Extension.xml_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Extension.xml_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\xmldocs\Microsoft.Protocols.TestTools.Extension.xml" />
+              </Component>
+
+              <!-- Microsoft.Protocols.TestTools.Messages.Runtime -->
+              <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.Messages.Runtime.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS9"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.Messages.Runtime.vs9.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\xmldocs\Microsoft.Protocols.TestTools.Messages.Runtime.xml" />
+              </Component>
+
+              <!-- Microsoft.Protocols.TestTools.VSTS -->
+              <Component Id="Microsoft.Protocols.TestTools.VSTS.dll_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.VSTS.dll_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.VSTS.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS9"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.VSTS.vs9.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.VSTS.xml_VS9" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.VSTS.xml_VS9"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\xmldocs\Microsoft.Protocols.TestTools.VSTS.xml" />
+              </Component>
+            </Directory>
+
+            <Directory Id="PTF_Bin_VS10" Name="vs10">
+              <!-- Microsoft.Protocols.TestTools -->
+              <Component Id="Microsoft.Protocols.TestTools.dll_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.dll_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.pdb_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.pdb_VS10"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.vs10.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.xml_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.xml_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\xmldocs\Microsoft.Protocols.TestTools.xml" />
+              </Component>
+
+              <!-- Microsoft.Protocols.TestTools.Extension -->
+              <Component Id="Microsoft.Protocols.TestTools.Extension.dll_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Extension.dll_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.Extension.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Extension.pdb_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Extension.pdb_VS10"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.Extension.vs10.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Extension.xml_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Extension.xml_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\xmldocs\Microsoft.Protocols.TestTools.Extension.xml" />
+              </Component>
+
+              <!-- Microsoft.Protocols.TestTools.Messages.Runtime -->
+              <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.Messages.Runtime.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS10"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.Messages.Runtime.vs10.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\xmldocs\Microsoft.Protocols.TestTools.Messages.Runtime.xml" />
+              </Component>
+
+              <!-- Microsoft.Protocols.TestTools.VSTS -->
+              <Component Id="Microsoft.Protocols.TestTools.VSTS.dll_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.VSTS.dll_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.VSTS.dll" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS10"
+                      Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll\Microsoft.Protocols.TestTools.VSTS.vs10.pdb" />
+              </Component>
+              <Component Id="Microsoft.Protocols.TestTools.VSTS.xml_VS10" Guid="*">
+                <File Id="Microsoft.Protocols.TestTools.VSTS.xml_VS10"
+                      Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\xmldocs\Microsoft.Protocols.TestTools.VSTS.xml" />
+              </Component>
+            </Directory>
+          </Directory>
+          <Directory Id="PTF_Docs" Name="docs">
+            <!-- PTF Chm Manual -->
+            <Component Id="PTF_Chm" Guid="*">
+              <File Id="ptf.chm" Source="$(env.INETROOT)\Infrastructure\src\ptf\docs\ptf.chm" />
+            </Component>
+            <!-- PTF User Guide -->
+            <Component Id="PTF_User_Guide" Guid="*">
+              <File Id="PTFUserGuide.docx" Source="$(env.INETROOT)\Infrastructure\src\ptf\docs\PTFUserGuide.docx" />
+            </Component>
+          </Directory>
+          <Directory Id="PTF_GAC_VS9" Name="GAC_VS9">
+            <Component Id="GAC_ASN1RT.dll" Guid="*">
+              <File Id="GAC_ASN1RT.dll"
+                     Source="$(env.INETROOT)\build\external\tools\ASNAPI\asn1rt.dll"
+                     KeyPath="yes"
+                     Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.dll_VS9" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.dll_VS9"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS9" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS9"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.VSTS.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS9" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS9"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.Extension.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs9\Microsoft.Protocols.TestTools.Messages.Runtime.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+          </Directory>
+          <Directory Id="PTF_GAC_VS10" Name="GAC_VS10">
+            <Component Id="GAC_Microsoft.Protocols.TestTools.dll_VS10" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.dll_VS10"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS10" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS10"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.VSTS.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS10" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS10"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.Extension.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+            <Component Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10" Guid="*">
+              <File Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10"
+                    Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf\vs10\Microsoft.Protocols.TestTools.Messages.Runtime.dll"
+                    KeyPath="yes"
+                    Assembly=".net" />
+            </Component>
+          </Directory>
+        </Directory>
+        <!-- Protocol Adapter Compiler Directory Structure -->
+        <Directory Id="ProtocolAdapterCompiler" Name="Protocol Adapter Compiler">
+          <Directory Id="PAC_Bin" Name="bin">
+            <!-- Registry information -->
+            <Component Id="PAC_REG" Guid="*">
+              <RegistryKey Id="PAC_REG_INSTALLDIR"
+                           Action="create"
+                           Root="HKLM"
+                           Key="SOFTWARE\Microsoft\ProtocolAdapterCompiler">
+                <RegistryValue Value="[PAC_Bin]" Type="string" Name="InstallDir"/>
+              </RegistryKey>
+
+              <Environment Id="PAC_ENV_PATH"
+                           Name="PATH"
+                           Action="set"
+                           System="yes"
+                           Part="last"
+                           Value="[PAC_Bin]" />
+            </Component>
+            <!-- Tool -->
+            <Component Id="pac.exe" Guid="*">
+              <File Id="pac.exe" Source="$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\pac\pac.exe" />
+            </Component>
+            <Component Id="pac.pdb" Guid="*">
+              <File Id="pac.pdb" Source="$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\exe\pac.pdb" />
+            </Component>
+            <!-- Additional files -->
+            <Component Id="default.pacconfig" Guid="*">
+              <File Id="default.pacconfig" Source="$(env.INETROOT)\Infrastructure\src\pac\Config\default.pacconfig" />
+            </Component>
+            <Component Id="pacconfig.xsd" Guid="*">
+              <File Id="pacconfig.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\Config\pacconfig.xsd" />
+            </Component>
+
+            <Directory Id="PAC_ConfigExample" Name="example">
+              <Component Id="example.pacconfig" Guid="*">
+                <File Id="example.pacconfig" Source="$(env.INETROOT)\Infrastructure\src\pac\Config\example\example.pacconfig" />
+              </Component>
+            </Directory>
+            <Directory Id="PAC_XmlSchema_Shared" Name="tdxmlschema">
+              <Directory Id="shared" Name="shared">
+                <Component Id="PTFModuleComponent4TDXMLSCHEMASHARED" Guid="4D18B14D-B47D-4492-88DE-1D6135CD0B56">
+                  <File Id="common.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\shared\common.xsd" />
+                </Component>
+              </Directory>
+              <Component Id="PTFModuleComponent4TDXMLSCHEMA" Guid="51DD8CC0-4532-4E71-97D1-9DF51768D4F3">
+                <File Id="const.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\const.xsd" />
+                <File Id="datatypes.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\datatypes.xsd" />
+                <File Id="dtd_element.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\dtd_element.xsd" />
+                <File Id="glossary.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\glossary.xsd" />
+                <File Id="http_message.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\http_message.xsd" />
+                <File Id="idl_enum.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\idl_enum.xsd" />
+                <File Id="idl_file.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\idl_file.xsd" />
+                <File Id="idl_interface.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\idl_interface.xsd" />
+                <File Id="idl_method.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\idl_method.xsd" />
+                <File Id="idl_struct.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\idl_struct.xsd" />
+                <File Id="overview.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\overview.xsd" />
+                <File Id="packet.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\packet.xsd" />
+                <File Id="property.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\property.xsd" />
+                <File Id="protocol.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\protocol.xsd" />
+                <File Id="retcodes.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\retcodes.xsd" />
+                <File Id="rfc_glossary.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\rfc_glossary.xsd" />
+                <File Id="rfc_index.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\rfc_index.xsd" />
+                <File Id="whatsnew.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\whatsnew.xsd" />
+                <File Id="whatsnew_summary.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\whatsnew_summary.xsd" />
+                <File Id="wsdev_main.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\wsdev_main.xsd" />
+                <File Id="wsdl_portType.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\wsdl-portType.xsd" />
+                <File Id="wsdl_operation.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\wsdl_operation.xsd" />
+                <File Id="xsd_attributeGroup.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\xsd-attributeGroup.xsd" />
+                <File Id="xsd_complexType.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\xsd-complexType.xsd" />
+                <File Id="xsd_element.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\xsd-element.xsd" />
+                <File Id="xsd_group.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\xsd-group.xsd" />
+                <File Id="xsd_simpleType.xsd" Source="$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema\xsd-simpleType.xsd" />
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+  </Module>
+</Wix>

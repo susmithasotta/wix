@@ -1,0 +1,20 @@
+
+
+
+
+
+ASSEMBLY_IDENTITY_NAME=protocoltestframework
+_ASSEMBLY_IDENTITY_VERSION_NAME_LOWERCASE=corext
+_ASSEMBLY_IDENTITY_PUBLIC_KEY_NAME_LOWERCASE=corext
+_ASSEMBLY_IDENTITY_PUBLIC_KEY_TOKEN_NAME_LOWERCASE=
+ASSEMBLY_IDENTITY_PROCESSOR_ARCHITECTURE=$(_BUILDARCH)
+_ASSEMBLY_IDENTITY=protocoltestframework,processorArchitecture=$(_BUILDARCH)
+
+# lowercased
+BASEDIR=d:\sd_pt3\protocol\ts_dev
+OBJECT_ROOT=d:\sd_pt3\protocol\ts_dev
+MAKEDIR_LOWERCASE=d:\sd_pt3\protocol\ts_dev\infrastructure\src\ptf\deploy\installerwithoutprivacystatement
+MAKEDIR_RELATIVE_TO_BASEDIR=infrastructure\src\ptf\deploy\installerwithoutprivacystatement
+OBJ_PATH=d:\sd_pt3\protocol\ts_dev\infrastructure\src\ptf\deploy\installerwithoutprivacystatement
+CONCURRENT_MIDL=0
+CONCURRENT_MANIFEST_BUILD=0

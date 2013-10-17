@@ -1,0 +1,23 @@
+!INCLUDE $(INETROOT)\build\paths.all
+!INCLUDE $(INETROOT)\build\sources.all
+
+#Use the binaries from $(inetroot)\drop, and build the .msm
+
+TARGETNAME                      = ProtocolTestFramework
+TARGETTYPE                      = NOTARGET
+
+SOURCES                         =
+
+NTTARGETFILE2                   = \
+                                  $(TARGETNAME).wixobj \
+                                  $(TARGETNAME).msm \
+                                  CodeSignMSM \
+                                  #(*.msm file must be put at the last line)
+
+WIX_REFERENCES                  = $(WIX_REFERENCES) \
+
+
+SYNCHRONIZE_PASS2_BLOCK         = 1
+SYNCHRONIZE_PASS2_DRAIN         = 1
+
+USER_CANDLE_FLAGS               = $(USER_CANDLE_FLAGS) -sw1031

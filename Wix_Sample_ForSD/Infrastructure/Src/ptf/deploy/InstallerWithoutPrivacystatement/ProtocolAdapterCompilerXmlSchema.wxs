@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef DevEnvDir?>
+
+<?define SCHEMA_SRCDIR=$(env.INETROOT)\Infrastructure\src\pac\tdxmlschema?>
+
+<?else?>
+
+<?ifdef Debug?>
+<?define BUILDTYPE=debug?>
+<?else?>
+<?define BUILDTYPE=release?>
+<?endif?>
+
+<?if $(var.Platform) = "x86"?>
+<?define BUILDTARGET=i386?>
+<?else?>
+<?define BUILDTARGET=amd64?>
+<?endif?>
+
+<?define SCHEMA_SRCDIR=$(var.ProjectDir)..\..\..\Infrastructure\src\pac\tdxmlschema?>
+
+<?endif?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Fragment>
+    <ComponentGroup Id="PAC_XmlSchema_Group">
+      <ComponentRef Id="PAC_XmlSchema_1" />
+      <ComponentRef Id="PAC_XmlSchema_2" />
+    </ComponentGroup>
+  </Fragment>
+  
+  <Fragment>  
+    <DirectoryRef Id="PAC_XmlSchema">      
+        <Component Id="PAC_XmlSchema_1" Guid="F9487A2D-AE22-4fb3-AEA2-405506A9E48A">
+          <File Id="const.xsd" Source="$(var.SCHEMA_SRCDIR)\const.xsd" />
+          <File Id="datatypes.xsd" Source="$(var.SCHEMA_SRCDIR)\datatypes.xsd" />
+          <File Id="dtd_element.xsd" Source="$(var.SCHEMA_SRCDIR)\dtd_element.xsd" />
+          <File Id="glossary.xsd" Source="$(var.SCHEMA_SRCDIR)\glossary.xsd" />
+          <File Id="http_message.xsd" Source="$(var.SCHEMA_SRCDIR)\http_message.xsd" />
+          <File Id="idl_enum.xsd" Source="$(var.SCHEMA_SRCDIR)\idl_enum.xsd" />
+          <File Id="idl_file.xsd" Source="$(var.SCHEMA_SRCDIR)\idl_file.xsd" />
+          <File Id="idl_interface.xsd" Source="$(var.SCHEMA_SRCDIR)\idl_interface.xsd" />
+          <File Id="idl_method.xsd" Source="$(var.SCHEMA_SRCDIR)\idl_method.xsd" />
+          <File Id="idl_struct.xsd" Source="$(var.SCHEMA_SRCDIR)\idl_struct.xsd" />
+          <File Id="overview.xsd" Source="$(var.SCHEMA_SRCDIR)\overview.xsd" />
+          <File Id="packet.xsd" Source="$(var.SCHEMA_SRCDIR)\packet.xsd" />
+          <File Id="property.xsd" Source="$(var.SCHEMA_SRCDIR)\property.xsd" />
+          <File Id="protocol.xsd" Source="$(var.SCHEMA_SRCDIR)\protocol.xsd" />
+          <File Id="retcodes.xsd" Source="$(var.SCHEMA_SRCDIR)\retcodes.xsd" />
+          <File Id="rfc_glossary.xsd" Source="$(var.SCHEMA_SRCDIR)\rfc_glossary.xsd" />
+          <File Id="rfc_index.xsd" Source="$(var.SCHEMA_SRCDIR)\rfc_index.xsd" />
+          <File Id="whatsnew.xsd" Source="$(var.SCHEMA_SRCDIR)\whatsnew.xsd" />
+          <File Id="whatsnew_summary.xsd" Source="$(var.SCHEMA_SRCDIR)\whatsnew_summary.xsd" />
+          <File Id="wsdev_main.xsd" Source="$(var.SCHEMA_SRCDIR)\wsdev_main.xsd" />
+          <File Id="wsdl_portType.xsd" Source="$(var.SCHEMA_SRCDIR)\wsdl-portType.xsd" />
+          <File Id="wsdl_operation.xsd" Source="$(var.SCHEMA_SRCDIR)\wsdl_operation.xsd" />
+          <File Id="xsd_attributeGroup.xsd" Source="$(var.SCHEMA_SRCDIR)\xsd-attributeGroup.xsd" />
+          <File Id="xsd_complexType.xsd" Source="$(var.SCHEMA_SRCDIR)\xsd-complexType.xsd" />
+          <File Id="xsd_element.xsd" Source="$(var.SCHEMA_SRCDIR)\xsd-element.xsd" />
+          <File Id="xsd_group.xsd" Source="$(var.SCHEMA_SRCDIR)\xsd-group.xsd" />
+          <File Id="xsd_simpleType.xsd" Source="$(var.SCHEMA_SRCDIR)\xsd-simpleType.xsd" />
+        </Component>      
+    </DirectoryRef>
+    
+    <DirectoryRef Id="PAC_XmlSchema_Shared">
+      <Component Id="PAC_XmlSchema_2" Guid="DA2BDD00-C19A-4edf-AC9E-C7B9E28AA7B5">
+        <File Id="common.xsd" Source="$(var.SCHEMA_SRCDIR)\shared\common.xsd" />
+      </Component>     
+    </DirectoryRef>   
+  </Fragment>
+  
+</Wix>

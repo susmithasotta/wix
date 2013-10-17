@@ -1,0 +1,47 @@
+!INCLUDE $(INETROOT)\build\paths.all
+!INCLUDE $(INETROOT)\build\sources.all
+
+#Use the binaries from $(inetroot)\drop, and build the .msi
+
+TARGETNAME                      = ProtocolTestFramework
+TARGETTYPE                      = NOTARGET
+
+SOURCES                         =
+
+NTTARGETFILE2                   = \
+                                  CodeSign \
+                                  $(TARGETNAME).wixobj \
+                                  PrivacyDlg.wixobj \
+                                  ProtocolAdapterCompiler.wixobj \
+                                  ProtocolAdapterCompilerXmlSchema.wixobj \
+                                  ProtocolTestFrameworkSDK.wixobj \
+                                  PTFProduct.wixobj \
+                                  $(TARGETNAME).msi \
+                                  CodeSignMSI \
+                                  #(*.msi file must be put at the last line)
+
+WIX_REFERENCES                  = $(WIX_REFERENCES) \
+                                  .\$(O)\PrivacyDlg.wixobj \
+                                  .\$(O)\ProtocolAdapterCompiler.wixobj \
+                                  .\$(O)\ProtocolAdapterCompilerXmlSchema.wixobj \
+                                  .\$(O)\ProtocolTestFrameworkSDK.wixobj \
+                                  .\$(O)\PTFProduct.wixobj \
+
+#suppress warning LGHT1055 : 
+#The InstallExecuteSequence table contains an action 'SxsInstallCA' which cannot be merged 
+#from the merge module 'Microsoft_VC90_CRT_x86.msm'. 
+#This action is likely colliding with an action in the database that is being created.
+#The colliding action may have been authored in the database or merged in from another merge module.
+#If this is a standard action, it is likely colliding due to a difference in the condition
+#for the action in the database and merge module.  
+#If this is a custom action, it should only be declared in the database or one merge module.
+
+USER_LIGHT_FLAGS                = $(USER_LIGHT_FLAGS) \
+                                  -ext WixVSExtension \
+                                  -ext WiXNetFxExtension \
+                                  -ext WixUtilExtension \
+                                  -loc ProtocolTestFramework.wxl \
+                                  -sw1055
+
+USER_CANDLE_FLAGS               = $(USER_CANDLE_FLAGS) \
+                                  -ext WixNetFxExtension

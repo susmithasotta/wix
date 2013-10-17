@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef DevEnvDir?>
+
+<?define SRCDIR=$(env.INETROOT)\$(env.INFRASTRUCTURE_DROP)\ptf?>
+<?define SYMB_DLL_DIR=$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\dll?>
+<?define SYMB_EXE_DIR=$(env.INETROOT)\SYMBOLS\$(env.BUILDTYPE)\$(env.BUILDTARGET)\exe?>
+<?define PTF_SRC_ROOT=$(env.INETROOT)\Infrastructure\src\ptf?>
+<?define BLDVER=$(env._BLDVERMAJOR).$(env._BLDVERMINOR).$(env._BLDNUMMAJOR).$(env._BLDNUMMINOR)?>
+<?define EXTERNALTOOL_REF_PATH=$(env.INETROOT)\build\external\tools?>
+<?else?>
+
+<?if $(var.Platform) = "x86"?>
+<?define BUILDTARGET=i386?>
+<?else?>
+<?define BUILDTARGET=amd64?>
+<?endif?>
+
+<?ifdef Debug?>
+<?define BUILDTYPE=debug?>
+<?else?>
+<?define BUILDTYPE=release?>
+<?endif?>
+
+<?define SRCDIR=$(var.ProjectDir)..\..\..\drop\$(var.BUILDTYPE)\$(var.BUILDTARGET)\Infrastructure\ptf?>
+<?define SYMB_DLL_DIR=$(var.ProjectDir)..\..\..\SYMBOLS\$(var.BUILDTYPE)\$(var.BUILDTARGET)\dll?>
+<?define SYMB_EXE_DIR=$(var.ProjectDir)..\..\..\SYMBOLS\$(var.BUILDTYPE)\$(var.BUILDTARGET)\exe?>
+<?define PTF_SRC_ROOT=$(var.ProjectDir)..\..\..\Infrastructure\src\ptf?>
+<?define BLDVER=1.0.1.0?>
+<?define EXTERNALTOOL_REF_PATH=$(var.ProjectDir)..\..\..\build\external\tools?>
+<?endif?>
+
+<?define SRCDIR_VS9=$(var.SRCDIR)\vs9?>
+<?define SRCDIR_VS10=$(var.SRCDIR)\vs10?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Fragment Id="PTF">
+
+    <!-- WixVSExtension properties for visual studio directories -->
+    <PropertyRef Id="VS90_ROOT_FOLDER" />
+    <PropertyRef Id="VS90_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED"/>
+    <PropertyRef Id="VS90_PROJECTTEMPLATES_DIR" />
+    <PropertyRef Id="VS90_SCHEMAS_DIR" />
+    <PropertyRef Id="VS2010_ROOT_FOLDER" />
+    <PropertyRef Id="VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED"/>
+    <PropertyRef Id="VS2010_PROJECTTEMPLATES_DIR" />
+    <PropertyRef Id="VS2010_SCHEMAS_DIR" />
+
+    <!-- Program Files -->
+    <DirectoryRef Id="ProgramFilesFolder">
+      <Directory Id="PTF_ROOT_DIR" Name="Protocol Test Framework">
+        <Directory Id="PTF_Bin" Name="bin">
+          <Directory Id="PTF_Bin_VS9" Name="vs9" />
+          <Directory Id="PTF_Bin_VS10" Name="vs10" />
+        </Directory>
+        <Directory Id="PTF_GAC_VS9" Name="GAC_VS9" />
+        <Directory Id="PTF_GAC_VS10" Name="GAC_VS10" />
+        <Directory Id="PTF_Docs" Name="docs" />
+      </Directory>
+    </DirectoryRef>
+
+    <!-- Program Menu -->
+    <DirectoryRef Id="ProgramMenuFolder">
+      <Directory Id="PTF_ProgramsMenuFolder" Name="Protocol Test Framework" />
+    </DirectoryRef>
+
+    <DirectoryRef Id="TARGETDIR">
+      <!-- visual studio project templates -->
+      <Directory Id="VS90_PROJECTTEMPLATES_DIR">
+        <Directory Id="VS90_CSharp" Name="CSharp" >
+          <Directory Id="VS90_Test" Name="Test" >
+            <Directory Id="VS90_1033" Name="1033" />
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id="VS2010_PROJECTTEMPLATES_DIR">
+        <Directory Id="VS2010_CSharp" Name="CSharp" >
+          <Directory Id="VS2010_Test" Name="Test" >
+            <Directory Id="VS2010_1033" Name="1033" />
+          </Directory>
+        </Directory>
+      </Directory>
+      <!-- visual studio schemas -->
+      <Directory Id="VS90_SCHEMAS_DIR" />
+      <Directory Id="VS2010_SCHEMAS_DIR" />
+    </DirectoryRef>
+
+    <!-- PTF Bin -->
+    <DirectoryRef Id="PTF_Bin">
+
+      <!-- Registry infromation -->
+      <Component Id="PTF_REG" Guid="*" Feature="PTF_All">
+        <RegistryKey Id="PTF_REG_INSTALLDIR"
+                     Action="create"
+                     Root="HKLM"
+                     Key="SOFTWARE\Microsoft\ProtocolTestFramework">
+          <RegistryValue Value="[PTF_Bin]" Type="string" Name="InstallDir"/>
+        </RegistryKey>
+
+        <RegistryKey Id="PTF_REG_FOR_VS_REFERENCE"
+                     Action="create"
+                     Root="HKLM"
+                     Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\ProtocolTestFramework">
+          <RegistryValue Value="[PTF_Bin_VS9]" Type="string"/>
+        </RegistryKey>
+
+        <Environment Id="PTF_ENV_PATH"
+                     Name="PATH"
+                     Action="set"
+                     System="yes"
+                     Part="last"
+                     Value="[PTF_Bin]" />
+      </Component>
+
+      <Component Id="ASN1RT.dll" Guid="*" Feature="PTF_All">
+        <File Id="ASN1RT.dll"
+               Source="$(var.EXTERNALTOOL_REF_PATH)\ASNAPI\asn1rt.dll" />
+      </Component>
+
+      <!-- Registry information for VS2010 reference (.Net 4.0) -->
+      <Component Id="PTF_REG_DOTNET_FX4" Guid="*" Feature="PTF_All">
+        <RegistryKey Id="PTF_REG_FOR_VS_REFERENCE_NET_40"
+                     Action="create"
+                     Root="HKLM"
+                     Key="SOFTWARE\Microsoft\.NETFramework\v4.0.30319\AssemblyFoldersEx\ProtocolTestFramework">
+          <RegistryValue Value="[PTF_Bin_VS10]" Type="string"/>
+        </RegistryKey>
+      </Component>
+
+      <!-- ReportingTool -->
+      <Component Id="ReportingTool.exe" Guid="*" Feature="PTF_All">
+        <File Id="ReportingTool.exe"
+              Source="$(var.SRCDIR)\reportingtool\ReportingTool.exe" />
+      </Component>
+      <Component Id="ReportingTool.pdb" Guid="*" Feature="PTF_All">
+        <File Id="ReportingTool.pdb"
+              Source="$(var.SYMB_EXE_DIR)\ReportingTool.pdb" />
+      </Component>
+
+      <!-- Config -->
+      <Component Id="site.ptfconfig" Guid="*" Feature="PTF_All">
+        <File Id="site.ptfconfig"
+              Source="$(var.PTF_SRC_ROOT)\testtools\config\site.ptfconfig" />
+      </Component>
+      <Component Id="TestConfig.xsd" Guid="*" Feature="PTF_All">
+        <File Id="TestConfig.xsd"
+              Source="$(var.PTF_SRC_ROOT)\testtools\config\TestConfig.xsd" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="PTF_Bin_VS9">
+
+      <!-- Microsoft.Protocols.TestTools -->
+      <Component Id="Microsoft.Protocols.TestTools.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.pdb_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.pdb_VS9"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.vs9.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.xml_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.xml_VS9"
+              Source="$(var.SRCDIR_VS9)\xmldocs\Microsoft.Protocols.TestTools.xml" />
+      </Component>
+
+      <!-- Microsoft.Protocols.TestTools.Extension -->
+      <Component Id="Microsoft.Protocols.TestTools.Extension.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Extension.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.Extension.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Extension.pdb_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Extension.pdb_VS9"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.Extension.vs9.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Extension.xml_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Extension.xml_VS9"
+              Source="$(var.SRCDIR_VS9)\xmldocs\Microsoft.Protocols.TestTools.Extension.xml" />
+      </Component>
+
+      <!-- Microsoft.Protocols.TestTools.Messages.Runtime -->
+      <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.Messages.Runtime.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS9"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.Messages.Runtime.vs9.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS9"
+              Source="$(var.SRCDIR_VS9)\xmldocs\Microsoft.Protocols.TestTools.Messages.Runtime.xml" />
+      </Component>
+
+      <!-- Microsoft.Protocols.TestTools.VSTS -->
+      <Component Id="Microsoft.Protocols.TestTools.VSTS.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.VSTS.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.VSTS.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS9"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.VSTS.vs9.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.VSTS.xml_VS9" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.VSTS.xml_VS9"
+              Source="$(var.SRCDIR_VS9)\xmldocs\Microsoft.Protocols.TestTools.VSTS.xml" />
+      </Component>
+
+    </DirectoryRef>
+
+    <DirectoryRef Id="PTF_Bin_VS10">
+
+      <!-- Microsoft.Protocols.TestTools -->
+      <Component Id="Microsoft.Protocols.TestTools.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.pdb_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.pdb_VS10"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.vs10.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.xml_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.xml_VS10"
+              Source="$(var.SRCDIR_VS10)\xmldocs\Microsoft.Protocols.TestTools.xml" />
+      </Component>
+
+      <!-- Microsoft.Protocols.TestTools.Extension -->
+      <Component Id="Microsoft.Protocols.TestTools.Extension.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Extension.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.Extension.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Extension.pdb_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Extension.pdb_VS10"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.Extension.vs10.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Extension.xml_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Extension.xml_VS10"
+              Source="$(var.SRCDIR_VS10)\xmldocs\Microsoft.Protocols.TestTools.Extension.xml" />
+      </Component>
+
+      <!-- Microsoft.Protocols.TestTools.Messages.Runtime -->
+      <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.Messages.Runtime.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.pdb_VS10"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.Messages.Runtime.vs10.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.Messages.Runtime.xml_VS10"
+              Source="$(var.SRCDIR_VS10)\xmldocs\Microsoft.Protocols.TestTools.Messages.Runtime.xml" />
+      </Component>
+
+      <!-- Microsoft.Protocols.TestTools.VSTS -->
+      <Component Id="Microsoft.Protocols.TestTools.VSTS.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.VSTS.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.VSTS.dll" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.VSTS.pdb_VS10"
+              Source="$(var.SYMB_DLL_DIR)\Microsoft.Protocols.TestTools.VSTS.vs10.pdb" />
+      </Component>
+      <Component Id="Microsoft.Protocols.TestTools.VSTS.xml_VS10" Guid="*" Feature="PTF_All">
+        <File Id="Microsoft.Protocols.TestTools.VSTS.xml_VS10"
+              Source="$(var.SRCDIR_VS10)\xmldocs\Microsoft.Protocols.TestTools.VSTS.xml" />
+      </Component>
+
+    </DirectoryRef>
+
+    <!-- PTF GAC -->
+    <DirectoryRef Id="PTF_GAC_VS9">
+      <Component Id="GAC_ASN1RT.dll" Guid="*" Feature="PTF_All">
+        <File Id="GAC_ASN1RT.dll"
+               Source="$(var.EXTERNALTOOL_REF_PATH)\ASNAPI\asn1rt.dll"
+               KeyPath="yes"
+               Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.VSTS.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.Extension.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS9"
+              Source="$(var.SRCDIR_VS9)\Microsoft.Protocols.TestTools.Messages.Runtime.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="PTF_GAC_VS10">
+      <Component Id="GAC_Microsoft.Protocols.TestTools.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.VSTS.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.VSTS.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.Extension.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.Extension.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+      <Component Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10" Guid="*" Feature="PTF_All">
+        <File Id="GAC_Microsoft.Protocols.TestTools.Messages.Runtime.dll_VS10"
+              Source="$(var.SRCDIR_VS10)\Microsoft.Protocols.TestTools.Messages.Runtime.dll"
+              KeyPath="yes"
+              Assembly=".net" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- PTF Docs -->
+    <DirectoryRef Id="PTF_Docs">
+      <!-- PTF Chm Manual -->
+      <Component Id="PTF_Chm" Guid="*" Feature="PTF_All">
+        <File Id="ptf.chm" Source="$(var.PTF_SRC_ROOT)\docs\ptf.chm" />
+      </Component>
+      <!-- PTF User Guide -->
+      <Component Id="PTF_User_Guide" Guid="*" Feature="PTF_All">
+        <File Id="PTFUserGuide.docx" Source="$(var.PTF_SRC_ROOT)\docs\PTFUserGuide.docx" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- PTF Shortcut -->
+    <DirectoryRef Id="PTF_ProgramsMenuFolder">
+      <!-- for PTF Chm Manual -->
+      <Component Id="PTF_Chm_Shortcut" Guid="*" Feature="PTF_All">
+        <Shortcut Id="PTF_Chm_Shortcut"
+                  Name="PTF Help"
+                  Target="[PTF_Docs]ptf.chm" />
+
+        <RemoveFolder Id="PTF_Chm_Shortcut" On="uninstall" />
+        <RegistryValue Id="PTF_Chm_Shortcut"
+                       Root="HKCU"
+                       Key="Software\Microsoft\ProtocolTestFramework"
+                       Name="chm_installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+      <!-- for PTF User Guide -->
+      <Component Id="PTF_User_Guide_Shortcut" Guid="*" Feature="PTF_All">
+        <Shortcut Id="PTF_User_Guide_Shortcut"
+                  Name="PTF User Guide"
+                  Target="[PTF_Docs]PTFUserGuide.docx" />
+
+        <RemoveFolder Id="PTF_User_Guide_Shortcut" On="uninstall" />
+        <RegistryValue Id="PTF_User_Guide_Shortcut"
+                       Root="HKCU"
+                       Key="Software\Microsoft\ProtocolTestFramework"
+                       Name="userguide_installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- PTF test solution template for VS 2008 -->
+    <DirectoryRef Id="VS90_1033">
+      <Component Id="VS90_PtfTemplate" Guid="{D47EEAF7-900B-491A-98F2-AC111CDCB0B2}" Feature="PTF_All">
+        <File Id="VS90_PtfTestSolutionTemplateVs9.zip" Vital="yes"
+              Source='$(var.SRCDIR)\PtfTestSolutionTemplateVs9.zip' />
+        <Condition>VS90_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED</Condition>
+      </Component>
+    </DirectoryRef>
+
+    <!-- PTF test solution template for VS 2010 -->
+    <DirectoryRef Id="VS2010_1033">
+      <Component Id="VS2010_PtfTemplate" Guid="{6CDC532F-67A7-400B-ABF6-6EC56B856AB0}" Feature="PTF_All">
+        <File Id="VS2010_PtfTestSolutionTemplateVs10.zip" Vital="yes"
+              Source='$(var.SRCDIR)\PtfTestSolutionTemplateVs10.zip' />
+        <Condition>VS2010_IDE_VCSHARP_PROJECTSYSTEM_INSTALLED</Condition>
+      </Component>
+    </DirectoryRef>
+
+    <!-- ptf testconfig schema for VS 2008 -->
+    <DirectoryRef Id="VS90_SCHEMAS_DIR">
+      <Component Id="VS90_TestConfig.xsd" Guid="{C6E084A4-1107-4481-AEE8-8237FDB90094}" Feature="PTF_All">
+        <File Id="VS90_TestConfig.xsd" Vital="yes"
+              Source="$(var.PTF_SRC_ROOT)\testtools\config\TestConfig.xsd" />
+        <Condition>VS90_ROOT_FOLDER</Condition>
+      </Component>
+    </DirectoryRef>
+
+    <!-- ptf testconfig schema for VS 2010 -->
+    <DirectoryRef Id="VS2010_SCHEMAS_DIR">
+      <Component Id="VS2010_TestConfig.xsd" Guid="{F372BD7E-2D83-49A6-9473-9421FCB8ABEF}" Feature="PTF_All">
+        <File Id="VS2010_TestConfig.xsd" Vital="yes"
+              Source="$(var.PTF_SRC_ROOT)\testtools\config\TestConfig.xsd" />
+        <Condition>VS2010_ROOT_FOLDER</Condition>
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="PTF_All"
+         Title="Protocol Test Framework"
+         Description="Protocol Test Framework"
+         Level="1"
+         Display="hidden" />
+
+  </Fragment>
+
+</Wix>

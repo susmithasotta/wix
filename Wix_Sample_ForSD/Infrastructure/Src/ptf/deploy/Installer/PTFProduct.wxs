@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?ifndef DevEnvDir?>
+
+<?define BLDVER=$(env._BLDVERMAJOR).$(env._BLDVERMINOR).$(env._BLDNUMMAJOR).$(env._BLDNUMMINOR)?>
+<?define EXTERNAL_DIR=$(env.INETROOT)\build\external\redist?>
+
+<?else?>
+
+<?define BLDVER=1.0.1.0?>
+<?define EXTERNAL_DIR=$(var.ProjectDir)..\..\..\build\external\redist?>
+
+<?endif?>
+
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+
+  <Product Id="*"
+           Name="Microsoft Protocol Test Framework"
+           Language="1033"
+           Version="$(var.BLDVER)"
+           Manufacturer="Microsoft Corporation"
+           UpgradeCode="3ED15020-EFB8-40D8-BCC0-818A0628D54D">
+
+
+    <!-- Set InstallerVersion to 300 or greater to merge VC90Redist -->
+    <Package Id="*"
+             InstallScope="perMachine"
+             InstallPrivileges="elevated"
+             Description="Microsoft Protocol Test Framework"
+             Comments="Microsoft Protocol Test Framework v$(var.BLDVER)"
+             Manufacturer="Microsoft Corporation"
+             InstallerVersion="300"
+             Compressed="yes" />
+
+    <Media Id="1" Cabinet="ProtocolTestFramework.cab" EmbedCab="yes" />
+
+    <!-- Upgrade info -->
+    <Upgrade Id="3ED15020-EFB8-40D8-BCC0-818A0628D54D">
+      <UpgradeVersion Property="OLDER_VERSION_BEING_UPGRADED"
+                      IncludeMaximum="no"
+                      Maximum="$(var.BLDVER)"
+                      OnlyDetect="no"
+                      RemoveFeatures="ALL" />
+      <UpgradeVersion Property="NEWER_VERSION_DETECTED"
+                      IncludeMinimum="no"
+                      Minimum="$(var.BLDVER)"
+                      OnlyDetect="yes" />
+    </Upgrade>
+
+
+    <!-- Conditions for product installation -->
+    <PropertyRef Id="NETFRAMEWORK20"/>
+    <Condition Message="This application requires .NET Framework 2.0. Please install the .NET Framework then run this installer again.">
+      Installed OR NETFRAMEWORK20
+    </Condition>
+    <Condition Message="A later version of [ProductName] is already installed. Setup will now exit.">
+      NOT NEWER_VERSION_DETECTED OR Installed
+    </Condition>
+
+
+    <!-- Directory Structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramMenuFolder" >
+        <Directory Id="ApplicationProgramsMenuFolder" Name="Protocol Test Framework" />
+      </Directory>
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="ROOT_DIR" Name="Protocol Test Framework">
+          <Directory Id="DOCS_DIR" Name="docs" />
+        </Directory>
+      </Directory>
+    </Directory>
+
+
+    <!-- Application Shortcut -->
+    <DirectoryRef Id="ApplicationProgramsMenuFolder">
+      <Component Id="ApplicationShortcut" Guid="*">
+
+        <!-- Microsoft Protocol Test Framework Release Notes -->
+        <Shortcut Id="ReleaseNotesStartMenuShortcut"
+                  Name="Microsoft Protocol Test Framework Release Notes"
+                  Description="Microsoft Protocol Test Framework Release Notes.docx"
+                  Target="[DOCS_DIR]ReleaseNotes.docx"
+                  WorkingDirectory="DOCS_DIR"/>
+
+        <!-- Step installer Uninstall Microsoft Protocol Test Framework -->
+        <Shortcut Id="UninstallProduct"
+                  Name="Uninstall Microsoft Protocol Test Framework"
+                  Description="Uninstall Microsoft Protocol Test Framework"
+                  Target="[System64Folder]msiexec.exe"
+                  Arguments="/x [ProductCode]"/>
+
+        <RemoveFolder Id="ROOT_DIR" On="uninstall"/>
+
+        <RegistryValue Root="HKCU"
+                       Key="Software\Microsoft\ProtocolTestFramework"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+
+      </Component>
+    </DirectoryRef>
+
+    <!-- Merge modules -->
+    <DirectoryRef Id="ROOT_DIR">
+      <Merge Id="SpecExplorerCommonMergeModule_3.0.2168.0"
+             Language="1033"
+             SourceFile="$(var.EXTERNAL_DIR)\SpecExplorer_Common_3.0.2168.0_Signed.msm"
+             DiskId="1"/>
+
+      <Merge Id="SpecExplorerShared_3.4.2965.0"
+         Language="1033"
+         SourceFile="$(var.EXTERNAL_DIR)\specexplorershared_3.4.2965.0_signed.msm"
+         DiskId="1"/>
+    </DirectoryRef>
+
+    <!-- Docs -->
+    <DirectoryRef Id="DOCS_DIR">
+      <Component Id="ReleaseNotes" Guid="*">
+        <File Id="ReleaseNotes.docx"
+              Source="ReleaseNotes.docx" />
+      </Component>
+    </DirectoryRef>
+    <!-- Microsoft Protocol Test Framework End User License Agreement -->
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <!-- Candidate Features -->
+    <Feature Id="Feature_All"
+                 Title="Microsoft Protocol Test Framework"
+                 Description="Microsoft Protocol Test Framework"
+                 Level="1"
+                 Display="expand"
+                 ConfigurableDirectory="ROOT_DIR">
+
+      <!-- Docs -->
+      <ComponentRef Id="ReleaseNotes"/>
+      <ComponentRef Id="ApplicationShortcut"/>
+
+      <!-- Protocol Test Framework -->
+      <Feature Id="Feature_ProtocolTestFramework"
+               Title="Protocol Test Framework"
+               Description="Protocol Test Framework"
+               Level="1" >
+        <!-- product -->
+        <FeatureRef Id="PTF_All" />
+        <!-- external merge module for SE -->
+        <MergeRef Id="SpecExplorerCommonMergeModule_3.0.2168.0" />
+        <MergeRef Id="SpecExplorerShared_3.4.2965.0" />
+      </Feature>
+
+      <!-- Protocol Test Framework -->
+      <Feature Id="Feature_PTFConfigGenerator"
+               Title="PTF Config file Generator"
+               Description="PTF Config file Generator"
+               Level="1" >
+        <!-- product -->
+        <FeatureRef Id="PCG_All" />
+      </Feature>
+
+      <!-- Protocol Adapter Compiler -->
+      <Feature Id="Feature_ProtocolAdapterCompiler"
+               Title="Protocol Adapter Compiler"
+               Description="Protocol Adapter Compiler"
+               Level="1" >
+        <!-- product and schema files-->
+        <FeatureRef Id="PAC_All">
+          <ComponentGroupRef Id="PAC_XmlSchema_Group"/>
+        </FeatureRef>
+      </Feature>
+
+    </Feature>
+
+    <!-- Default sequence -->
+    <InstallExecuteSequence>
+      <RemoveExistingProducts After="InstallInitialize"/>
+    </InstallExecuteSequence>
+
+    <!-- Custom sequence -->
+    <InstallExecuteSequence>
+      <!-- 
+      Wix grammar reference:
+      "!" means "Installed state of the feature".
+      "&" means "Action state of the feature".
+      INSTALLSTATE_UNKNOWN(-1) - No action to be taken on the feature or component.
+      INSTALLSTATE_ABSENT(2) - Feature or component is not present.
+      INSTALLSTATE_LOCAL(3) - Feature or component on the local computer.
+      MSDN: http://msdn.microsoft.com/en-us/library/aa368012(VS.85).aspx 
+     -->
+      <!-- Conditionally force visual studio to update its project templates-->
+      <Custom Action="VS90InstallVSTemplates" Before="InstallFinalize">
+        <![CDATA[&Feature_ProtocolTestFramework=2]]> OR <![CDATA[&Feature_ProtocolTestFramework=3]]>
+      </Custom>
+      <Custom Action="VS2010InstallVSTemplates" Before="InstallFinalize">
+        <![CDATA[&Feature_ProtocolTestFramework=2]]> OR <![CDATA[&Feature_ProtocolTestFramework=3]]>
+      </Custom>
+    </InstallExecuteSequence>
+
+    <!-- Progress Texts for UI -->
+    <UIRef Id="WixUI_FeatureTree" />
+    <UIRef Id="WixUI_ErrorProgressText" />
+
+    <UI>
+      <Publish Dialog="PrivacyDlg" Control="Cancel" Event="EndDialog" Value="Return">1</Publish>
+      <Publish Dialog="PrivacyDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="PrivacyDlg">1</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="PrivacyDlg">1</Publish>
+      <ProgressText Action="VS90InstallVSTemplates">Update Visual Studio 2008 Templates</ProgressText>
+      <ProgressText Action="VS2010InstallVSTemplates">Update Visual Studio 2010 Templates</ProgressText>
+    </UI>
+
+    <!-- Properties for "Add or Reomve Program Entries" -->
+    <Property Id="ARPCOMMENTS">Microsoft Protocol Test Framework</Property>
+    <Property Id="ARPCONTACT">Microsoft Winterop Engineering Team</Property>
+  </Product>
+</Wix>

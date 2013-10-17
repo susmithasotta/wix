@@ -1,0 +1,27 @@
+BUILD_PASS1_CONSUMES = \
+    infrastructure\src\pac|PASS1 \
+    infrastructure\src\ptf\deploy\installer|PASS1 \
+    infrastructure\src\ptf\reportingtool|PASS1 \
+    infrastructure\src\ptf\testtools.extension\vs10|PASS1 \
+    infrastructure\src\ptf\testtools.extension\vs9|PASS1 \
+    infrastructure\src\ptf\testtools.messages.runtime\vs10|PASS1 \
+    infrastructure\src\ptf\testtools.messages.runtime\vs9|PASS1 \
+    infrastructure\src\ptf\testtools.vsts\vs10|PASS1 \
+    infrastructure\src\ptf\testtools.vsts\vs9|PASS1 \
+    infrastructure\src\ptf\testtools\vs10|PASS1 \
+    infrastructure\src\ptf\testtools\vs9|PASS1 \
+    infrastructure\src\ptf\vstemplate|PASS1 \
+
+BUILD_PASS2_CONSUMES = \
+    infrastructure\src\pac|PASS2 \
+    infrastructure\src\ptf\deploy\installer|PASS2 \
+    infrastructure\src\ptf\reportingtool|PASS2 \
+    infrastructure\src\ptf\testtools.extension\vs10|PASS2 \
+    infrastructure\src\ptf\testtools.extension\vs9|PASS2 \
+    infrastructure\src\ptf\testtools.messages.runtime\vs10|PASS2 \
+    infrastructure\src\ptf\testtools.messages.runtime\vs9|PASS2 \
+    infrastructure\src\ptf\testtools.vsts\vs10|PASS2 \
+    infrastructure\src\ptf\testtools.vsts\vs9|PASS2 \
+    infrastructure\src\ptf\testtools\vs10|PASS2 \
+    infrastructure\src\ptf\testtools\vs9|PASS2 \
+    infrastructure\src\ptf\vstemplate|PASS2 \
